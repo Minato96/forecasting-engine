@@ -1,2 +1,5 @@
 tensorflow
 numpy
+fastapi
+pydantic
+uvicorn
