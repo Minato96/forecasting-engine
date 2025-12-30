@@ -5,17 +5,36 @@ from src.window_generator import WindowGenerator
 from src.model import build_lstm_model
 
 # 1. Load Data
+print("⬇️  Checking for dataset...")
 zip_path = tf.keras.utils.get_file(
     origin='https://storage.googleapis.com/tensorflow/tf-keras-datasets/jena_climate_2009_2016.csv.zip',
     fname='jena_climate_2009_2016.csv.zip',
     extract=True)
 
-# --- THE FIX IS HERE ---
-# Instead of guessing, we build the path explicitly.
-# The file inside the zip is always named 'jena_climate_2009_2016.csv'
-csv_path = os.path.join(os.path.dirname(zip_path), 'jena_climate_2009_2016.csv')
+base_dir = os.path.dirname(zip_path)
+filename = 'jena_climate_2009_2016.csv'
+
+# Option A: Is it directly in the folder?
+csv_path = os.path.join(base_dir, filename)
+
+# Option B: Is it inside the '_extracted' folder? (This is likely your case)
+if not os.path.exists(csv_path):
+    # Try the folder name seen in your error log
+    csv_path = os.path.join(base_dir, 'jena_climate_2009_2016_extracted', filename)
+
+# Option C: If still missing, just find it recursively
+if not os.path.exists(csv_path):
+    print("⚠️  File moved. Searching recursively...")
+    for root, dirs, files in os.walk(base_dir):
+        if filename in files:
+            csv_path = os.path.join(root, filename)
+            break
 
 print(f"📂 Loading data from: {csv_path}")
+
+if not os.path.exists(csv_path):
+    raise FileNotFoundError(f"❌ Could not find {filename} anywhere in {base_dir}")
+
 df = pd.read_csv(csv_path)
 
 # Subsample from 10 min to 1 hour (take every 6th row)
