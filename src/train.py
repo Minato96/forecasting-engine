@@ -2,6 +2,7 @@ import pandas as pd
 import tensorflow as tf
 from src.window_generator import WindowGenerator
 from src.model import build_lstm_model
+import os
 
 # 1. Load Data (Using a standard climatic dataset for realism)
 zip_path = tf.keras.utils.get_file(
